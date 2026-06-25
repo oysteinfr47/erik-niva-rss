@@ -5,17 +5,30 @@ on:
 
 jobs:
   test:
+    permissions:
+      contents: write
+
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - run: |
-          echo "It works!" > test.txt
+      - name: Create test file
+        run: |
+          echo "It works! $(date -u)" > test.txt
 
-      - run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add test.txt
-          git commit -m "Test" || exit 0
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Test GitHub Actions"
           git push
